@@ -68,29 +68,18 @@ async function ensurePublicApiPermissions(strapi: Core.Strapi) {
   await ensurePublicPermission(strapi, 'api::blog-post.blog-post.findOne');
 }
 
-const LEGACY_SITE_TITLE = 'Welcome to Strapi on Zerops';
-
 async function seedSiteInfo(strapi: Core.Strapi) {
   const existing = await strapi.documents('api::site-info.site-info').findFirst();
-  if (!existing) {
-    await strapi.documents('api::site-info.site-info').create({
-      data: {
-        title: DEFAULT_TITLE,
-        description: DEFAULT_DESCRIPTION,
-      },
-    });
+  if (existing) {
     return;
   }
 
-  if (existing.title === LEGACY_SITE_TITLE) {
-    await strapi.documents('api::site-info.site-info').update({
-      documentId: existing.documentId,
-      data: {
-        title: DEFAULT_TITLE,
-        description: DEFAULT_DESCRIPTION,
-      },
-    });
-  }
+  await strapi.documents('api::site-info.site-info').create({
+    data: {
+      title: DEFAULT_TITLE,
+      description: DEFAULT_DESCRIPTION,
+    },
+  });
 }
 
 async function seedBlogPosts(strapi: Core.Strapi) {
