@@ -12,14 +12,26 @@ async function ensurePublicSiteInfoPermission(strapi: Core.Strapi) {
     return;
   }
 
+  const action = 'api::site-info.site-info.find';
   const permission = await strapi.db.query('plugin::users-permissions.permission').findOne({
     where: {
       role: publicRole.id,
-      action: 'api::site-info.site-info.find',
+      action,
     },
   });
 
-  if (permission && !permission.enabled) {
+  if (!permission) {
+    await strapi.db.query('plugin::users-permissions.permission').create({
+      data: {
+        role: publicRole.id,
+        action,
+        enabled: true,
+      },
+    });
+    return;
+  }
+
+  if (!permission.enabled) {
     await strapi.db.query('plugin::users-permissions.permission').update({
       where: { id: permission.id },
       data: { enabled: true },
