@@ -1,6 +1,3 @@
-import fs from 'fs';
-import path from 'path';
-
 import type { Core } from '@strapi/strapi';
 
 const DEFAULT_TITLE = 'Strapi + React on Zerops';
@@ -33,6 +30,10 @@ const DEMO_BLOG_POSTS = [
       'Create a new Blog Post in admin, fill title and excerpt, publish, then reload the React app. The collection type is a better fit than a single type when you want a list of entries.',
   },
 ] as const;
+
+function demoCoverPath(coverFile: string) {
+  return `/seed-covers/${coverFile}`;
+}
 
 async function ensurePublicPermission(strapi: Core.Strapi, action: string) {
   const publicRole = await strapi.db.query('plugin::users-permissions.role').findOne({
@@ -88,48 +89,6 @@ async function seedSiteInfo(strapi: Core.Strapi) {
   });
 }
 
-async function uploadSeedCover(strapi: Core.Strapi, filename: string) {
-  const absolutePath = path.join(process.cwd(), 'public', 'seed-covers', filename);
-  if (!fs.existsSync(absolutePath)) {
-    return null;
-  }
-
-  const uploadService = strapi.plugin('upload').service('upload');
-  const stat = fs.statSync(absolutePath);
-  const mime = filename.endsWith('.svg') ? 'image/svg+xml' : 'image/png';
-
-  const uploaded = await uploadService.upload({
-    data: {
-      fileInfo: {
-        name: filename,
-        alternativeText: filename.replace(/\.[^.]+$/, '').replace(/-/g, ' '),
-      },
-    },
-    files: {
-      path: absolutePath,
-      name: filename,
-      type: mime,
-      size: stat.size,
-    },
-  });
-
-  const file = Array.isArray(uploaded) ? uploaded[0] : uploaded;
-  return file?.id ?? null;
-}
-
-async function attachCover(strapi: Core.Strapi, documentId: string, coverFile: string) {
-  const coverId = await uploadSeedCover(strapi, coverFile);
-  if (!coverId) {
-    return;
-  }
-
-  await strapi.documents('api::blog-post.blog-post').update({
-    documentId,
-    // Media relation id — document types lag schema until types are regenerated
-    data: { cover: coverId } as Record<string, unknown>,
-  });
-}
-
 async function seedBlogPosts(strapi: Core.Strapi) {
   const existing = await strapi.documents('api::blog-post.blog-post').findMany({ limit: 1 });
   if (existing.length > 0) {
@@ -138,30 +97,41 @@ async function seedBlogPosts(strapi: Core.Strapi) {
 
   for (const post of DEMO_BLOG_POSTS) {
     const { coverFile, ...fields } = post;
-    const created = await strapi.documents('api::blog-post.blog-post').create({
-      data: fields,
+    await strapi.documents('api::blog-post.blog-post').create({
+      data: {
+        ...fields,
+        coverUrl: demoCoverPath(coverFile),
+      },
       status: 'published',
     });
-    if (created?.documentId) {
-      await attachCover(strapi, created.documentId, coverFile);
-    }
   }
 }
 
-async function syncBlogCovers(strapi: Core.Strapi) {
+async function syncDemoCovers(strapi: Core.Strapi) {
   const posts = await strapi.documents('api::blog-post.blog-post').findMany({
     populate: ['cover'],
   });
 
   for (const post of posts) {
-    if (post.cover) {
-      continue;
-    }
     const demo = DEMO_BLOG_POSTS.find((entry) => entry.slug === post.slug);
     if (!demo || !post.documentId) {
       continue;
     }
-    await attachCover(strapi, post.documentId, demo.coverFile);
+
+    const hasMedia = Boolean(post.cover);
+    const hasUrl = Boolean(post.coverUrl);
+    if (hasMedia && hasUrl) {
+      continue;
+    }
+
+    if (hasUrl) {
+      continue;
+    }
+
+    await strapi.documents('api::blog-post.blog-post').update({
+      documentId: post.documentId,
+      data: { coverUrl: demoCoverPath(demo.coverFile) } as Record<string, unknown>,
+    });
   }
 }
 
@@ -171,7 +141,7 @@ export default {
   async bootstrap({ strapi }: { strapi: Core.Strapi }) {
     await seedSiteInfo(strapi);
     await seedBlogPosts(strapi);
-    await syncBlogCovers(strapi);
+    await syncDemoCovers(strapi);
     await ensurePublicApiPermissions(strapi);
   },
 };

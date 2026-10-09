@@ -33,6 +33,9 @@
       "multiple": false,
       "required": false,
       "allowedTypes": ["images"]
+    },
+    "coverUrl": {
+      "type": "string"
     }
   }
 }
