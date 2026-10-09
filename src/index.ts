@@ -1,10 +1,34 @@
 import type { Core } from '@strapi/strapi';
 
-const DEFAULT_TITLE = 'Welcome to Strapi on Zerops';
+const DEFAULT_TITLE = 'Strapi + React on Zerops';
 const DEFAULT_DESCRIPTION =
-  'This headline and body come from the Site Info single type in Strapi. Edit them in the admin panel (/admin) and refresh the React app.';
+  'Headless CMS demo — sample blog posts below are seeded in Strapi. Edit them in the admin panel (/admin) and refresh the React app.';
 
-async function ensurePublicSiteInfoPermission(strapi: Core.Strapi) {
+const DEMO_BLOG_POSTS = [
+  {
+    title: 'Deploy Strapi on Zerops in minutes',
+    slug: 'deploy-strapi-on-zerops',
+    excerpt: 'Use the strapi-react recipe: PostgreSQL, prod builds, and a static React storefront on subdomains.',
+    body:
+      'Import the Small Production stack from the Zerops recipe catalog. Strapi runs on nodejs@22 with Yarn 4 builds; the Vite frontend is baked as static files with VITE_API_URL pointing at your API hostname.',
+  },
+  {
+    title: 'Headless CMS meets a React SPA',
+    slug: 'headless-cms-react-spa',
+    excerpt: 'Content lives in Strapi; the storefront fetches JSON over HTTPS with public read permissions.',
+    body:
+      'Editors work in Strapi admin while developers ship the React app independently. CORS allows the Zerops frontend origin so the browser can call /api/blog-posts and /api/site-info safely.',
+  },
+  {
+    title: 'From draft to published post',
+    slug: 'draft-to-published',
+    excerpt: 'Blog posts use draft & publish — only published entries appear on the demo site.',
+    body:
+      'Create a new Blog Post in admin, fill title and excerpt, publish, then reload the React app. The collection type is a better fit than a single type when you want a list of entries.',
+  },
+] as const;
+
+async function ensurePublicPermission(strapi: Core.Strapi, action: string) {
   const publicRole = await strapi.db.query('plugin::users-permissions.role').findOne({
     where: { type: 'public' },
   });
@@ -12,7 +36,6 @@ async function ensurePublicSiteInfoPermission(strapi: Core.Strapi) {
     return;
   }
 
-  const action = 'api::site-info.site-info.find';
   const permission = await strapi.db.query('plugin::users-permissions.permission').findOne({
     where: {
       role: publicRole.id,
@@ -39,18 +62,49 @@ async function ensurePublicSiteInfoPermission(strapi: Core.Strapi) {
   }
 }
 
+async function ensurePublicApiPermissions(strapi: Core.Strapi) {
+  await ensurePublicPermission(strapi, 'api::site-info.site-info.find');
+  await ensurePublicPermission(strapi, 'api::blog-post.blog-post.find');
+  await ensurePublicPermission(strapi, 'api::blog-post.blog-post.findOne');
+}
+
+const LEGACY_SITE_TITLE = 'Welcome to Strapi on Zerops';
+
 async function seedSiteInfo(strapi: Core.Strapi) {
   const existing = await strapi.documents('api::site-info.site-info').findFirst();
-  if (existing) {
+  if (!existing) {
+    await strapi.documents('api::site-info.site-info').create({
+      data: {
+        title: DEFAULT_TITLE,
+        description: DEFAULT_DESCRIPTION,
+      },
+    });
     return;
   }
 
-  await strapi.documents('api::site-info.site-info').create({
-    data: {
-      title: DEFAULT_TITLE,
-      description: DEFAULT_DESCRIPTION,
-    },
-  });
+  if (existing.title === LEGACY_SITE_TITLE) {
+    await strapi.documents('api::site-info.site-info').update({
+      documentId: existing.documentId,
+      data: {
+        title: DEFAULT_TITLE,
+        description: DEFAULT_DESCRIPTION,
+      },
+    });
+  }
+}
+
+async function seedBlogPosts(strapi: Core.Strapi) {
+  const existing = await strapi.documents('api::blog-post.blog-post').findMany({ limit: 1 });
+  if (existing.length > 0) {
+    return;
+  }
+
+  for (const post of DEMO_BLOG_POSTS) {
+    await strapi.documents('api::blog-post.blog-post').create({
+      data: post,
+      status: 'published',
+    });
+  }
 }
 
 export default {
@@ -58,6 +112,7 @@ export default {
 
   async bootstrap({ strapi }: { strapi: Core.Strapi }) {
     await seedSiteInfo(strapi);
-    await ensurePublicSiteInfoPermission(strapi);
+    await seedBlogPosts(strapi);
+    await ensurePublicApiPermissions(strapi);
   },
 };
