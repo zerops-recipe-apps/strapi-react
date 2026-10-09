@@ -1,12 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-label="Draft to published">
-  <defs>
-    <linearGradient id="g" x1="0%" y1="50%" x2="100%" y2="50%">
-      <stop offset="0%" stop-color="#14532d"/>
-      <stop offset="100%" stop-color="#4ade80"/>
-    </linearGradient>
-  </defs>
-  <rect width="1200" height="675" fill="url(#g)"/>
-  <path d="M720 120 L1020 337 L720 555 Z" fill="#fff" opacity="0.15"/>
-  <text x="72" y="310" fill="#ecfdf5" font-family="system-ui,sans-serif" font-size="54" font-weight="600">Draft ’ Published</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675">
+  <rect width="1200" height="675" fill="#15803d"/>
+  <path d="M720 120 L1020 337 L720 555 Z" fill="#ffffff" opacity="0.15"/>
+  <text x="72" y="310" fill="#ecfdf5" font-family="system-ui,sans-serif" font-size="54" font-weight="600">Draft to Published</text>
   <text x="72" y="380" fill="#bbf7d0" font-family="system-ui,sans-serif" font-size="28">Editorial workflow in Strapi</text>
 </svg>
