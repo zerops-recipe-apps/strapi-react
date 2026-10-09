@@ -128,10 +128,15 @@ async function syncDemoCovers(strapi: Core.Strapi) {
       continue;
     }
 
-    await strapi.documents('api::blog-post.blog-post').update({
-      documentId: post.documentId,
-      data: { coverUrl: demoCoverPath(demo.coverFile) } as Record<string, unknown>,
-    });
+    try {
+      await strapi.documents('api::blog-post.blog-post').update({
+        documentId: post.documentId,
+        data: { coverUrl: demoCoverPath(demo.coverFile) } as Record<string, unknown>,
+        status: 'published',
+      });
+    } catch (error) {
+      strapi.log.warn(`Could not set coverUrl for ${post.slug}: ${String(error)}`);
+    }
   }
 }
 
