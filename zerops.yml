@@ -27,6 +27,9 @@ zerops:
         - public/~
         - database/~
         - package.json
+        - yarn.lock
+        - .yarnrc.yml
+        - .yarn/releases/~
         - favicon.png
         - ~node_modules
       cache:
@@ -54,11 +57,11 @@ zerops:
         ADMIN_EMAIL: ${ADMIN_EMAIL}
         ADMIN_PASSWORD: ${ADMIN_PASSWORD}
       initCommands:
-        - zsc execOnce strapi_admin_v1 -- yarn strapi admin:create-user --email=${ADMIN_EMAIL} --password=${ADMIN_PASSWORD} --firstname=Admin --lastname=User
+        - zsc execOnce strapi_admin_v1 -- node node_modules/@strapi/strapi/bin/strapi.js admin:create-user --email=${ADMIN_EMAIL} --password=${ADMIN_PASSWORD} --firstname=Admin --lastname=User
       ports:
         - port: 1337
           httpSupport: true
-      start: yarn start
+      start: node node_modules/@strapi/strapi/bin/strapi.js start
       healthCheck:
         httpGet:
           port: 1337
