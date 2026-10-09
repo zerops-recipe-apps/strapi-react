@@ -54,6 +54,8 @@ zerops:
         API_URL: ${API_URL}
         APP_URL: ${APP_URL}
         DEV_APP_URL: ${DEV_APP_URL}
+      initCommands:
+        - mkdir -p public/uploads
       ports:
         - port: 1337
           httpSupport: true
