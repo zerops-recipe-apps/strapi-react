@@ -9,27 +9,47 @@ const DEMO_BLOG_POSTS = [
     title: 'Deploy Strapi on Zerops in minutes',
     slug: 'deploy-strapi-on-zerops',
     coverFile: 'deploy-strapi-on-zerops.svg',
-    excerpt: 'Use the strapi-react recipe: PostgreSQL, prod builds, and a static React storefront on subdomains.',
-    body:
-      'Import the Small Production stack from the Zerops recipe catalog. Strapi runs on nodejs@24 with Yarn 4 builds; the Vite frontend is baked as static files with VITE_API_URL pointing at your API hostname.',
+    excerpt:
+      'Import the strapi-react recipe to get PostgreSQL, a Strapi API on nodejs@24, and a static React storefront with project vault URLs wired for you.',
+    body: `The strapi-react recipe is designed for a realistic small-production stack without a long checklist. You import one YAML bundle, Zerops creates the database and services, and Git-connected builds keep Strapi and the React app in sync.
+
+On the Strapi side, production builds use Yarn 4 from the committed release binary, compile the admin panel, and deploy only what runtime needs: configuration, compiled output, dependencies, and public assets. PostgreSQL is provisioned as a managed service; connection strings arrive through Zerops env isolation so you never hard-code credentials in the repo.
+
+The React storefront is a separate static service. Vite bakes VITE_API_URL at build time from the project vault, which points at your Strapi subdomain. After deploy, editors use Strapi admin on the API host while visitors hit the frontend hostname. Subdomain access and health checks are part of the recipe defaults, so you can verify the API with /_health and the SPA with a normal browser refresh.
+
+If you are iterating locally, the dev setup deploys the full tree over SSH so you can run yarn develop and npm run dev against the same content types. When you are ready for production, push to main or trigger a Zerops build; caches for node_modules keep subsequent deploys fast.`,
   },
   {
     title: 'Headless CMS meets a React SPA',
     slug: 'headless-cms-react-spa',
     coverFile: 'headless-cms-react-spa.svg',
-    excerpt: 'Content lives in Strapi; the storefront fetches JSON over HTTPS with public read permissions.',
-    body:
-      'Editors work in Strapi admin while developers ship the React app independently. CORS allows the Zerops frontend origin so the browser can call /api/blog-posts and /api/site-info safely.',
+    excerpt:
+      'Split the CMS and the UI: Strapi owns structured content and permissions; React fetches public JSON and renders fast static pages on Zerops.',
+    body: `A headless architecture separates concerns that traditionally lived in one monolith. Strapi becomes the system of record for content models, editorial workflow, media library, and API tokens. The React app becomes a thin, replaceable presentation layer that can be redeployed independently whenever design or frontend code changes.
+
+This demo wires two content endpoints into the storefront. Site Info is a single type for global marketing copy on the home page. Blog Post is a collection with draft and publish, cover media, and slug-based detail routes in React Router. Public role permissions are enabled in bootstrap for find and findOne so anonymous visitors can read published entries without exposing the admin API.
+
+Cross-origin requests are explicit. The browser loads the SPA from the frontend hostname and calls the Strapi API on another subdomain. Strapi CORS must allow the storefront origin; the recipe documents vault keys APP_URL and API_URL so both sides agree on hostnames in dev and prod. The frontend shows list previews on the home page and full article text when you open a post.
+
+That split pays off in team workflows. Content editors work entirely inside Strapi admin—no deploy required for copy changes once API responses update. Frontend engineers ship UI improvements on their own cadence. Operations scale each tier separately on Zerops: Node for Strapi, static nginx for the SPA, and PostgreSQL for durable storage.`,
   },
   {
     title: 'From draft to published post',
     slug: 'draft-to-published',
     coverFile: 'draft-to-published.svg',
-    excerpt: 'Blog posts use draft & publish — only published entries appear on the demo site.',
-    body:
-      'Create a new Blog Post in admin, fill title and excerpt, publish, then reload the React app. The collection type is a better fit than a single type when you want a list of entries.',
+    excerpt:
+      'Use draft and publish on Blog Post entries so work-in-progress stays out of the public API until you are ready to go live.',
+    body: `Collection types in Strapi support an editorial lifecycle that single types do not. When draft and publish is enabled, saving a new entry creates a draft document that only authenticated users see in admin. Publishing promotes the current draft to the live dataset consumers read through the REST API.
+
+In this recipe, the React home page calls GET /api/blog-posts with sort by publishedAt descending. Unpublished drafts never appear in that list, which keeps the marketing site stable while authors prepare announcements. Opening a post uses the slug filter to load one entry for the detail view, again only for published documents.
+
+Authors should fill title, slug, excerpt, and body, attach an optional cover image in the media field, and use excerpt for card previews while reserving body for the long-form article. After publish, a refresh of the storefront pulls the new JSON without redeploying the SPA—only static env changes such as a new API hostname require a frontend rebuild.
+
+You can extend the same pattern for release notes, customer stories, or changelog entries. Add components or dynamic zones later if you need richer layouts; the demo stays intentionally small so the path from admin to API to React remains easy to follow.`,
   },
 ] as const;
+
+const DEMO_COPY_MIN_LENGTH = 500;
 
 function demoCoverPath(coverFile: string) {
   return `/seed-covers/${coverFile}`;
@@ -107,6 +127,35 @@ async function seedBlogPosts(strapi: Core.Strapi) {
   }
 }
 
+async function syncDemoPostCopy(strapi: Core.Strapi) {
+  const posts = await strapi.documents('api::blog-post.blog-post').findMany({});
+
+  for (const post of posts) {
+    const demo = DEMO_BLOG_POSTS.find((entry) => entry.slug === post.slug);
+    if (!demo || !post.documentId) {
+      continue;
+    }
+
+    const body = typeof post.body === 'string' ? post.body : '';
+    if (body.length >= DEMO_COPY_MIN_LENGTH) {
+      continue;
+    }
+
+    try {
+      await strapi.documents('api::blog-post.blog-post').update({
+        documentId: post.documentId,
+        data: {
+          excerpt: demo.excerpt,
+          body: demo.body,
+        } as Record<string, unknown>,
+        status: 'published',
+      });
+    } catch (error) {
+      strapi.log.warn(`Could not refresh demo copy for ${post.slug}: ${String(error)}`);
+    }
+  }
+}
+
 async function syncDemoCovers(strapi: Core.Strapi) {
   const posts = await strapi.documents('api::blog-post.blog-post').findMany({
     populate: ['cover'],
@@ -146,6 +195,7 @@ export default {
   async bootstrap({ strapi }: { strapi: Core.Strapi }) {
     await seedSiteInfo(strapi);
     await seedBlogPosts(strapi);
+    await syncDemoPostCopy(strapi);
     await syncDemoCovers(strapi);
     await ensurePublicApiPermissions(strapi);
   },
