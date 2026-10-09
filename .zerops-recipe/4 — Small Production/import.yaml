@@ -44,11 +44,6 @@ services:
     verticalAutoscaling:
       minRam: 1
       minFreeRamGB: 0.5
-    vault:
-      ADMIN_EMAIL: admin@example.com
-      ADMIN_PASSWORD:
-        value: <@generateRandomString(<20>)>
-        sensitive: true
     envIsolation: service service@frontendstage service@frontenddev service@frontend
   - hostname: frontend
     type: static
