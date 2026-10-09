@@ -36,7 +36,7 @@ Point the frontend `VITE_API_URL` at your Strapi URL.
 <!-- #ZEROPS_EXTRACT_START:integration-guide# -->
 ## Integration
 
-- Strapi `prod`: Yarn 4 via `corepack enable`; deploy `config/`, `src/`, `dist/`, `public/`, `node_modules`.
+- Strapi `prod`: Yarn 4 from `.yarn/releases/`; deploy `config/`, `src/`, `dist/`, `public/`, `node_modules`.
 - Strapi `dev`: `deployFiles: ./`, `yarn develop` over SSH.
 - Frontend `prod`: Vite build → `static` runtime; `VITE_API_URL` from vault `API_URL`.
 <!-- #ZEROPS_EXTRACT_END:integration-guide# -->

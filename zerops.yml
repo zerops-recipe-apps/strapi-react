@@ -18,9 +18,8 @@ zerops:
         TRANSFER_TOKEN_SALT: ${TRANSFER_TOKEN_SALT}
         JWT_SECRET: ${JWT_SECRET}
       buildCommands:
-        - corepack enable
-        - yarn install --immutable
-        - yarn build
+        - node .yarn/releases/yarn-4.9.2.cjs install --immutable
+        - node .yarn/releases/yarn-4.9.2.cjs build
       deployFiles:
         - config/~
         - src/~
@@ -71,8 +70,7 @@ zerops:
       envVariables:
         STRAPI_URL: ${DEV_API_URL}
       buildCommands:
-        - corepack enable
-        - yarn install --immutable
+        - node .yarn/releases/yarn-4.9.2.cjs install --immutable
       deployFiles: ./
       cache:
         - node_modules
