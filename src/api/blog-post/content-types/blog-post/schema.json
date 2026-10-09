@@ -27,6 +27,12 @@
     "body": {
       "type": "text",
       "required": true
+    },
+    "cover": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["images"]
     }
   }
 }
