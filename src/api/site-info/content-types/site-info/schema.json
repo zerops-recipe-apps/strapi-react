@@ -1,0 +1,23 @@
+{
+  "kind": "singleType",
+  "collectionName": "site_infos",
+  "info": {
+    "singularName": "site-info",
+    "pluralName": "site-infos",
+    "displayName": "Site Info",
+    "description": "Default copy shown on the React frontend"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "text",
+      "required": true
+    }
+  }
+}
