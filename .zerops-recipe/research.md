@@ -4,7 +4,7 @@
 
 - **Software:** Strapi 5.12 + React 19 (Vite) SPA
 - **Type:** headless CMS + static frontend
-- **Zerops Runtime:** `nodejs@22` (Strapi), `nodejs@24` build + `static` (frontend), `postgresql@17`
+- **Zerops Runtime:** `nodejs@24` (Strapi + frontend build), `static` (frontend), `postgresql@17`
 
 ## Setups
 

@@ -28,7 +28,7 @@ Point the frontend `VITE_API_URL` at your Strapi URL.
 
 **Setups** — only `dev` and `prod`. Hostname `strapistage` uses `zeropsSetup: prod`.
 
-**Node** — Strapi 5 requires Node ≤ 22; Zerops services use `nodejs@22`.
+**Node** — Zerops Strapi services use `nodejs@24`; local dev should match `package.json` engines.
 
 **Content** — edit **Site Info** in Strapi admin; bootstrap enables public read on `/api/site-info`.
 <!-- #ZEROPS_EXTRACT_END:faq# -->

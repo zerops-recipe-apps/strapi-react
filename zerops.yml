@@ -1,12 +1,12 @@
 # yaml-language-server: $schema=https://api.app-prg1.zerops.io/api/rest/public/settings/zerops-yaml-json-schema.json
 #
 # Strapi CMS at repo root. Setups: `prod` and `dev` only.
-# Strapi 5.x requires Node <= 22 — use `nodejs@22` on the Zerops service.
+# Strapi on Zerops uses `nodejs@24` for build and runtime.
 
 zerops:
   - setup: prod
     build:
-      base: nodejs@22
+      base: nodejs@24
       envVariables:
         NODE_ENV: production
         NODE_OPTIONS: --max-old-space-size=3072
@@ -40,7 +40,7 @@ zerops:
           port: 1337
           path: /_health
     run:
-      base: nodejs@22
+      base: nodejs@24
       envVariables:
         HOST: 0.0.0.0
         PORT: "1337"
@@ -67,7 +67,7 @@ zerops:
 
   - setup: dev
     build:
-      base: nodejs@22
+      base: nodejs@24
       envVariables:
         STRAPI_URL: ${DEV_API_URL}
       buildCommands:
@@ -76,7 +76,7 @@ zerops:
       cache:
         - node_modules
     run:
-      base: nodejs@22
+      base: nodejs@24
       envVariables:
         HOST: 0.0.0.0
         PORT: "1337"

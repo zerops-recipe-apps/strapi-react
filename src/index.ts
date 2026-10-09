@@ -11,7 +11,7 @@ const DEMO_BLOG_POSTS = [
     coverFile: 'deploy-strapi-on-zerops.svg',
     excerpt: 'Use the strapi-react recipe: PostgreSQL, prod builds, and a static React storefront on subdomains.',
     body:
-      'Import the Small Production stack from the Zerops recipe catalog. Strapi runs on nodejs@22 with Yarn 4 builds; the Vite frontend is baked as static files with VITE_API_URL pointing at your API hostname.',
+      'Import the Small Production stack from the Zerops recipe catalog. Strapi runs on nodejs@24 with Yarn 4 builds; the Vite frontend is baked as static files with VITE_API_URL pointing at your API hostname.',
   },
   {
     title: 'Headless CMS meets a React SPA',

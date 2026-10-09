@@ -24,7 +24,7 @@ Strapi v5 headless CMS ([zerops-recipe-apps/strapi-react](https://github.com/zer
 
 **Setups** — `dev` and `prod` only. `strapistage` uses `prod`.
 
-**Node** — Strapi services use `nodejs@22` (Strapi 5 engine cap). Frontend build uses `nodejs@24` + `static` runtime.
+**Node** — Strapi and frontend build use `nodejs@24`; frontend runtime is `static`.
 
 **Content** — edit **Site Info** in `/admin`; React reads `/api/site-info`.
 <!-- #ZEROPS_EXTRACT_END:faq# -->

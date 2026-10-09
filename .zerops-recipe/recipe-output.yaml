@@ -15,5 +15,5 @@ ready_for_testing: false
 notes:
   - Create GitHub repos zerops-recipe-apps/strapi-react and strapi-react-frontend.
   - Register Strapi CMS recipe slug strapi-react; refresh GitHub cache.
-  - Strapi requires nodejs@22 on Zerops; verify deploy before ready_for_testing true.
+  - Strapi requires nodejs@24 on Zerops; verify deploy before ready_for_testing true.
   - Site Info single type seeds on bootstrap; public GET /api/site-info.
