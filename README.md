@@ -1,17 +1,19 @@
-# Strapi + React (backend)
+# Strapi + React (backend) — moved
+
+The CMS app now lives in **[zerops-recipe-apps/strapi](https://github.com/zerops-recipe-apps/strapi)**. This repository is kept for backward-compatible links; new work and deploys should use the `strapi` repo and [`zeropsio/recipes/strapi`](https://github.com/zeropsio/recipes/tree/main/strapi).
 
 <!-- #ZEROPS_EXTRACT_START:intro# -->
-Strapi v5.12 headless CMS on [Zerops](https://zerops.io), paired with a separate [React frontend](https://github.com/zerops-recipe-apps/strapi-react-frontend). PostgreSQL ships with the recipe. A **Site Info** single type seeds default copy; the React app renders it from `/api/site-info`. Import only `strapi*` services for CMS-only.
+Strapi v5.12 on [Zerops](https://zerops.io) with optional [React frontend](https://github.com/zerops-recipe-apps/strapi-react-frontend). Deploy CMS from [strapi](https://github.com/zerops-recipe-apps/strapi) or the full stack via [`strapi-react` recipe](https://github.com/zeropsio/recipes/tree/main/strapi-react).
 <!-- #ZEROPS_EXTRACT_END:intro# -->
 
 ## Repos
 
 | Repo | Role |
 | --- | --- |
-| [strapi-react](https://github.com/zerops-recipe-apps/strapi-react) | Strapi API + admin (`/admin`) |
+| [strapi](https://github.com/zerops-recipe-apps/strapi) | Strapi API + admin (`/admin`) |
 | [strapi-react-frontend](https://github.com/zerops-recipe-apps/strapi-react-frontend) | Vite + React SPA |
 
-Recipe imports: [`.zerops-recipe/`](.zerops-recipe/) and [`zeropsio/recipes/strapi-react`](https://github.com/zeropsio/recipes/tree/main/strapi-react).
+Recipe imports: [`zeropsio/recipes/strapi`](https://github.com/zeropsio/recipes/tree/main/strapi) (CMS), [`strapi-react`](https://github.com/zeropsio/recipes/tree/main/strapi-react) (CMS + React).
 
 ## Local
 
